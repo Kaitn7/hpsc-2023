@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <cstdlib>
-#include <cmath>
 #include <vector>
 
 void para_prf_sum(int *offset, int size){
@@ -17,11 +16,12 @@ void para_prf_sum(int *offset, int size){
       offset[i] += temp[i-j];
     }
   }
+  delete[] temp;
 }
 
 int main() {
-  int n = 50;
-  int range = 20;
+  int n = 20;
+  int range = 10;
   std::vector<int> key(n);
   for (int i=0; i<n; i++) {
     key[i] = rand() % range;
@@ -68,4 +68,7 @@ int main() {
     printf("%d ",key[i]);
   }
   printf("\n");
+
+  delete[] bucket;
+  delete[] offset;
 }
