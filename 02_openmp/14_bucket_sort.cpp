@@ -63,12 +63,11 @@ int main() {
       key[j++] = i;
     }
   }
-
+  
   for (int i=0; i<n; i++){
     printf("%d ",key[i]);
   }
   printf("\n");
 
-  delete[] bucket;
-  delete[] offset;
+  
 }
