@@ -1,33 +1,27 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <vector>
 
-void para_prf_sum(int *arr, int *offset){
-  int N = sizeof(arr);
+void para_prf_sum(int *offset, int size){
   int *temp;
-  temp = new int[N];
+  temp = new int[size];
 #pragma omp parallel
-  { 
+  {
+  for(int j=1; j<size; j<<=1) {
 #pragma omp for
-  for (int i=0; i<N; i++){
-    offset[i] = 0;
-    printf("%d ", offset[i]);
-  }
-    
-  for(int j=1; j<N; j<<=1) {
+    for(int i=0; i<size; i++)
+      temp[i] = offset[i];
 #pragma omp for
-  for(int i=0; i<N; i++)
-    temp[i] = offset[i];
-#pragma omp for
-  for(int i=j; i<N; i++)
-      offset[i] += temp[i-j] + arr[i-j];
+    for(int i=j; i<size; i++)
+      offset[i] += temp[i-j];
     }
   }
 }
 
 int main() {
   int n = 50;
-  int range = 5;
+  int range = 20;
   std::vector<int> key(n);
   for (int i=0; i<n; i++) {
     key[i] = rand() % range;
@@ -38,7 +32,7 @@ int main() {
   int *bucket;
   bucket = new int[range];
 
-#pragma omp parallel for reduction(+:bucket[:range])
+#pragma omp parallel for schedule(auto) reduction(+:bucket[:range])
     for (int i=0; i<n; i++){
       bucket[key[i]]++;
     }
@@ -48,11 +42,19 @@ int main() {
   printf("\n");
   int *offset;
   offset = new int[range];
-
-  para_prf_sum(bucket, offset);
+  offset[0] = 0;
+#pragma omp parallel for
+  for (int i=0; i<range-1; i++){
+    offset[i+1] = bucket[i];
+  }
+  para_prf_sum(offset, range);
 
   // for (int i=0; i<range; i++)
   //   // offset[i] = offset[i-1] + bucket[i-1];
+
+  for(int i=0; i<range; i++)
+    printf("%d ", offset[i]);
+  printf("\n");
   
 #pragma omp parallel for
   for (int i=0; i<range; i++) {
